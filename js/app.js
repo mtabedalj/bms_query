@@ -8,6 +8,10 @@ var DxdApp = (function() {
     baja = _baja;
     $ = _$;
     loadPoints();
+
+    $(window).on('beforeunload', function() {
+      SubscriptionManager.cleanup();
+    });
   }
 
   function loadPoints() {
@@ -24,6 +28,7 @@ var DxdApp = (function() {
           return;
         }
         renderTable(descriptors);
+        return SubscriptionManager.subscribe(baja, descriptors, onValueUpdate);
       })
       .catch(function(err) {
         showError('Failed to discover points: ' + (err.message || err));
@@ -38,12 +43,19 @@ var DxdApp = (function() {
     descriptors.forEach(function(point) {
       var row = $('<tr>');
       row.append($('<td>').text(point.name));
-      row.append($('<td>').addClass('value-cell').text('--'));
+      row.append($('<td>').addClass('value-cell').attr('data-slot', point.slotPath).text('--'));
       tbody.append(row);
     });
 
     $('#loading').hide();
     $('#points-table').show();
+  }
+
+  function onValueUpdate(slotPath, displayValue, pointName) {
+    var cell = $('.value-cell[data-slot="' + slotPath + '"]');
+    if (cell.length) {
+      cell.text(displayValue);
+    }
   }
 
   function showError(message) {
