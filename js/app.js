@@ -3,6 +3,7 @@ var DxdApp = (function() {
 
   var baja;
   var $;
+  var pointStore = {};
 
   function init(_baja, _$) {
     baja = _baja;
@@ -20,6 +21,8 @@ var DxdApp = (function() {
     $('#points-table').hide();
 
     var config = DXD_CONFIG[0];
+
+    HistoryModal.init(baja, config.siteName);
 
     PointDiscovery.discoverPoints(baja, config.folderPath)
       .then(function(descriptors) {
@@ -39,11 +42,18 @@ var DxdApp = (function() {
   function renderTable(descriptors) {
     var tbody = $('#points-table tbody');
     tbody.empty();
+    pointStore = {};
 
     descriptors.forEach(function(point) {
+      pointStore[point.slotPath] = point;
       var row = $('<tr>');
       row.append($('<td>').text(point.name));
       row.append($('<td>').addClass('value-cell').attr('data-slot', point.slotPath).text('--'));
+      row.append($('<td>').append(
+        $('<button>').addClass('btn-history').text('History').on('click', function() {
+          HistoryModal.open(pointStore[point.slotPath]);
+        })
+      ));
       tbody.append(row);
     });
 
@@ -55,6 +65,9 @@ var DxdApp = (function() {
     var cell = $('.value-cell[data-slot="' + slotPath + '"]');
     if (cell.length) {
       cell.text(displayValue);
+    }
+    if (pointStore[slotPath]) {
+      pointStore[slotPath].currentValue = displayValue;
     }
   }
 
