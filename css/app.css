@@ -123,9 +123,43 @@ tbody tr:last-child td {
   font-weight: 500;
 }
 
+.units-cell {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.th-status {
+  width: 60px;
+  text-align: center;
+}
+
 .th-actions {
   width: 100px;
   text-align: center;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-normal {
+  background: #16a34a;
+}
+
+.status-fault {
+  background: #dc2626;
+}
+
+.status-down {
+  background: #f59e0b;
+}
+
+.status-stale {
+  background: #9ca3af;
 }
 
 .btn-history {

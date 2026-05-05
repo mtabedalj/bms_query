@@ -17,14 +17,22 @@ var SubscriptionManager = (function() {
     subscriber = new baja.Subscriber();
 
     subscriber.attach('changed', function(prop) {
-      if (prop.getName() !== 'out') return;
-
+      var propName = prop.getName();
       var path = this.toPathString();
       var descriptor = pathToDescriptor[path];
 
-      if (descriptor) {
+      if (!descriptor) return;
+
+      if (propName === 'out') {
         var displayValue = formatValue(this.getOut());
-        onChange(descriptor.slotPath, displayValue, descriptor.name);
+        var status = extractStatus(baja, this);
+        onChange(descriptor.slotPath, displayValue, descriptor.name, status);
+      }
+
+      if (propName === 'status') {
+        var status = extractStatus(baja, this);
+        var displayValue = formatValue(this.getOut());
+        onChange(descriptor.slotPath, displayValue, descriptor.name, status);
       }
     });
 
@@ -37,10 +45,30 @@ var SubscriptionManager = (function() {
         var descriptor = pathToDescriptor[path];
         if (descriptor) {
           var displayValue = formatValue(this.getOut());
-          onChange(descriptor.slotPath, displayValue, descriptor.name);
+          var status = extractStatus(baja, this);
+          onChange(descriptor.slotPath, displayValue, descriptor.name, status);
         }
       }
     });
+  }
+
+  function extractStatus(baja, component) {
+    try {
+      var status = component.getStatus && component.getStatus();
+      if (!status) {
+        status = component.get('status');
+      }
+      if (status) {
+        if (status.isFault && status.isFault()) return 'fault';
+        if (status.isDown && status.isDown()) return 'down';
+        if (status.isStale && status.isStale()) return 'stale';
+        if (status.isNormal && status.isNormal()) return 'normal';
+        if (status.isOk && status.isOk()) return 'normal';
+      }
+    } catch (e) {
+      // Status not available on this component type
+    }
+    return 'normal';
   }
 
   function formatValue(value) {
