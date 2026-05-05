@@ -4,9 +4,6 @@ var DxdApp = (function() {
   var baja;
   var $;
 
-  var HARDCODED_POINT_ORD =
-    'station:|slot:/Drivers/AbstractMqttDriverNetwork/FordHiveMQTT/points/VisionMetering/FPS_SIX_FLR_METER_04000b89_KWH';
-
   function init(_baja, _$) {
     baja = _baja;
     $ = _$;
@@ -18,31 +15,30 @@ var DxdApp = (function() {
     $('#error').hide();
     $('#points-table').hide();
 
-    baja.Ord.make(HARDCODED_POINT_ORD)
-      .get({ lease: true })
-      .then(function(component) {
-        var name = component.getName();
-        var value = component.get('out');
-        var displayValue = value !== null && value !== undefined
-          ? value.toString()
-          : 'N/A';
+    var config = DXD_CONFIG[0];
 
-        renderTable([{ name: name, value: displayValue }]);
+    PointDiscovery.discoverPoints(baja, config.folderPath)
+      .then(function(descriptors) {
+        if (descriptors.length === 0) {
+          showError('No points found in folder: ' + config.folderPath);
+          return;
+        }
+        renderTable(descriptors);
       })
       .catch(function(err) {
-        showError('Failed to resolve point: ' + (err.message || err));
+        showError('Failed to discover points: ' + (err.message || err));
         baja.error(err);
       });
   }
 
-  function renderTable(points) {
+  function renderTable(descriptors) {
     var tbody = $('#points-table tbody');
     tbody.empty();
 
-    points.forEach(function(point) {
+    descriptors.forEach(function(point) {
       var row = $('<tr>');
       row.append($('<td>').text(point.name));
-      row.append($('<td>').addClass('value-cell').text(point.value));
+      row.append($('<td>').addClass('value-cell').text('--'));
       tbody.append(row);
     });
 
