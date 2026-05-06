@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DXD Explorer Tests</title>
+  <style>
+    body { font-family: monospace; max-width: 800px; margin: 20px auto; }
+    .test-module { margin: 16px 0; padding: 8px; border-left: 3px solid #ccc; }
+    h2 { font-size: 16px; margin: 0 0 8px 0; }
+    .summary { font-weight: bold; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1>DXD Explorer Test Runner</h1>
+  <div id="results"></div>
+  <script src="js/bootstrap.js"></script>
+  <script src="js/bootstrap.test.js"></script>
+  <script src="js/shims.js"></script>
+  <script src="js/shims.test.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/config.test.js"></script>
+  <script src="js/discovery.js"></script>
+  <script src="js/discovery.test.js"></script>
+  <script src="js/subscription.js"></script>
+  <script src="js/subscription.test.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/history.test.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/modal.test.js"></script>
+  <script>
+    'use strict';
+    var resultsDiv = document.getElementById('results');
+    var modules = [
+      { name: 'Bootstrap', test: BootstrapTest },
+      { name: 'Shims', test: ShimsTest },
+      { name: 'Config', test: DxdConfigTest },
+      { name: 'Discovery', test: DiscoveryTest },
+      { name: 'Subscription', test: SubscriptionTest },
+      { name: 'History', test: HistoryTest },
+      { name: 'Modal', test: ModalTest }
+    ];
+
+    var totalPassed = 0;
+    var totalFailed = 0;
+
+    function runModule(index) {
+      if (index >= modules.length) {
+        var summary = document.createElement('div');
+        summary.className = 'summary';
+        summary.textContent = totalPassed + ' modules passed, ' + totalFailed + ' failed';
+        resultsDiv.appendChild(summary);
+        return;
+      }
+
+      var m = modules[index];
+      var section = document.createElement('div');
+      section.className = 'test-module';
+      var header = document.createElement('h2');
+      header.textContent = m.name;
+      section.appendChild(header);
+      resultsDiv.appendChild(section);
+
+      var consoleLines = [];
+      var origLog = console.log;
+      console.log = function(msg) {
+        consoleLines.push(msg);
+        origLog.apply(console, arguments);
+      };
+
+      function flushConsole() {
+        console.log = origLog;
+        consoleLines.forEach(function(line) {
+          var p = document.createElement('div');
+          p.textContent = line;
+          section.appendChild(p);
+        });
+      }
+
+      var result = m.test.runAll();
+
+      if (result && typeof result.then === 'function') {
+        result.then(function(passed) {
+          flushConsole();
+          if (passed) totalPassed++;
+          else totalFailed++;
+          runModule(index + 1);
+        });
+      } else {
+        flushConsole();
+        if (result) totalPassed++;
+        else totalFailed++;
+        runModule(index + 1);
+      }
+    }
+
+    runModule(0);
+  </script>
+</body>
+</html>

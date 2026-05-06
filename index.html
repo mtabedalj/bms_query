@@ -58,7 +58,12 @@
     if (typeof bajaRequire !== 'undefined') {
       BajaBootstrap.start(bajaRequire, initCallback);
     } else {
-      BajaBootstrap.start(undefined, initCallback);
+      var shimScript = document.createElement('script');
+      shimScript.src = 'js/shims.js';
+      shimScript.onload = function() {
+        BajaBootstrap.start(bajaRequire, initCallback);
+      };
+      document.head.appendChild(shimScript);
     }
   </script>
 </body>
