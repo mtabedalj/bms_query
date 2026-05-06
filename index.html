@@ -39,9 +39,11 @@
   <script src="js/subscription.js"></script>
   <script src="js/history.js"></script>
   <script src="js/modal.js"></script>
+  <script src="js/bootstrap.js"></script>
   <script>
-    bajaRequire(['baja!', 'jquery'], function(baja, $) {
-      'use strict';
+    'use strict';
+
+    var initCallback = function(baja, $) {
       google.charts.load('current', { packages: ['corechart'] });
       var script = document.createElement('script');
       script.src = 'js/app.js';
@@ -51,7 +53,13 @@
         }
       };
       document.head.appendChild(script);
-    });
+    };
+
+    if (typeof bajaRequire !== 'undefined') {
+      BajaBootstrap.start(bajaRequire, initCallback);
+    } else {
+      BajaBootstrap.start(undefined, initCallback);
+    }
   </script>
 </body>
 </html>
