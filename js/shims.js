@@ -181,10 +181,30 @@
     }
 
     function createFromHtml(html) {
-      var div = document.createElement('div');
-      div.innerHTML = html.trim();
-      var child = div.firstChild;
-      div.removeChild(child);
+      var trimmed = html.trim();
+      var tagMatch = trimmed.match(/^<(\w+)/);
+      var tagName = tagMatch ? tagMatch[1].toLowerCase() : '';
+      var tableTags = ['td', 'th', 'tr', 'tbody', 'thead', 'tfoot'];
+      var wrapper = tableTags.indexOf(tagName) !== -1
+        ? document.createElement('table')
+        : document.createElement('div');
+
+      wrapper.innerHTML = trimmed;
+      var child = wrapper.firstChild;
+
+      if (tagName === 'td' || tagName === 'th') {
+        if (child) child = child.firstChild;  // tbody
+        if (child) child = child.firstChild;  // tr
+        if (child) child = child.firstChild;  // td/th
+      } else if (tagName === 'tr') {
+        if (child) child = child.firstChild;  // tbody
+        if (child) child = child.firstChild;  // tr
+      }
+
+      if (child && child.parentNode) {
+        child.parentNode.removeChild(child);
+      }
+
       return new JQueryInstance([child]);
     }
 
