@@ -310,15 +310,25 @@
     };
 
     JQueryInstance.prototype.addClass = function(className) {
+      var classes = className.split(/\s+/);
       for (var i = 0; i < this.length; i++) {
-        if (this[i] && this[i].classList) this[i].classList.add(className);
+        if (this[i] && this[i].classList) {
+          for (var c = 0; c < classes.length; c++) {
+            this[i].classList.add(classes[c]);
+          }
+        }
       }
       return this;
     };
 
     JQueryInstance.prototype.removeClass = function(className) {
+      var classes = className.split(/\s+/);
       for (var i = 0; i < this.length; i++) {
-        if (this[i] && this[i].classList) this[i].classList.remove(className);
+        if (this[i] && this[i].classList) {
+          for (var c = 0; c < classes.length; c++) {
+            this[i].classList.remove(classes[c]);
+          }
+        }
       }
       return this;
     };
