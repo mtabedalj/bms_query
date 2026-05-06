@@ -432,6 +432,7 @@
   window.bajaRequire = function(deps, callback) {
     var baja = createMockBaja();
     var $ = createJQueryMock();
+    window.$ = $;
     callback(baja, $);
   };
 })();
