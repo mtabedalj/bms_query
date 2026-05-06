@@ -55,11 +55,18 @@ var DxdApp = (function() {
       row.append($('<td>').text(formatPointName(point.name)));
       row.append($('<td>').addClass('value-cell').attr('data-slot', point.slotPath).text('--'));
       row.append($('<td>').addClass('units-cell').text(point.units || '--'));
-      row.append($('<td>').append(
-        $('<button>').addClass('btn-history').text('History').on('click', function() {
+      var historyBtn = $('<button>').addClass('btn-history').text('History');
+      if (!window.DXD_CHARTS_AVAILABLE) {
+        historyBtn
+          .addClass('disabled')
+          .attr('title', 'Charts unavailable — requires Google Charts')
+          .on('click', function(e) { e.preventDefault(); });
+      } else {
+        historyBtn.on('click', function() {
           HistoryModal.open(pointStore[point.slotPath]);
-        })
-      ));
+        });
+      }
+      row.append($('<td>').append(historyBtn));
       tbody.append(row);
     });
 

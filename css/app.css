@@ -179,6 +179,17 @@ tbody tr:last-child td {
   color: #fff;
 }
 
+.btn-history.disabled {
+  color: #9ca3af;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.btn-history.disabled:hover {
+  background: transparent;
+  color: #9ca3af;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;

@@ -104,6 +104,14 @@ var HistoryModal = (function() {
   }
 
   function renderChart(records) {
+    if (typeof google === 'undefined' || !google.visualization) {
+      $overlay.find('.modal-loading').hide();
+      $overlay.find('.modal-error')
+        .text('Charts unavailable — requires Google Charts')
+        .show();
+      return;
+    }
+
     var TimestampTypeKey = findTimestampColumn(records);
 
     var dataTable = new google.visualization.DataTable();
